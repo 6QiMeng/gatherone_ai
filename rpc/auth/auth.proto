@@ -1,0 +1,35 @@
+syntax = "proto3";
+package auth;
+
+message VerifyTokenRequest {
+  string system_code = 1; //系统代码
+  string token = 2; //校验登录状态
+}
+
+message UserData {
+  int32 user_id = 1; //用户id
+  string mobile = 2; //手机号
+  string real_name = 3; //姓名
+  string avatar_url = 4; //头像
+  string email = 5;  //email
+  bool is_active = 6; //激活状态
+  bool is_superuser = 7; //是否是管理员
+  bool bind_wx = 8;  //绑定微信
+  string role_name = 9;  //角色名称
+  string department_name = 10;  //部门名称
+  string leader_name = 11;  //直属上级
+  string company_name = 12;  //公司名称
+  string session_id = 13; // session_id
+  string system = 14; // 系统权限
+  string cn_identification = 15; // 认证类型
+}
+
+message VerifyTokenResponse {
+  int32 code = 1;
+  string msg = 2;
+  UserData data = 3;
+}
+
+service AuthService {
+  rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse);  //验证token
+}
