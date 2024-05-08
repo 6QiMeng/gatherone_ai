@@ -12,18 +12,8 @@ from utils.resp import MyResponse
 # 权限初始化
 def permission_init():
     # 将所有模型的增删改查权限添加到数据库
-    from apps.account.models import custom_models as account_models
-    from apps.approval.models import custom_models as approval_models
-    from apps.common.models import custom_models as common_models
-    from apps.contract.models import custom_models as contract_models
-    from apps.customer.models import custom_models as customer_models
-    from apps.finance.models import custom_models as finance_models
-    from apps.marketing.models import custom_models as marketing_models
-    from apps.message.models import custom_models as message_models
-    from apps.report.models import custom_models as report_models
     from apps.system.models import custom_models as system_models, Action
-    all_model = [*account_models, *approval_models, *common_models, *contract_models, *customer_models, *finance_models,
-                 *marketing_models, *message_models, *report_models, *system_models]
+    all_model = [*system_models]
     with SessionLocal() as db:
         actions = db.query(Action.action_code, Action.action_name)
         action_data = {i[0]: i[1] for i in actions}

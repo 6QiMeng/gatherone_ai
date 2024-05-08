@@ -24,9 +24,10 @@ class Loguru_logger:
         creat_time = time.strftime("%Y-%m-%d", time.localtime())
 
         logger.remove(handler_id=None)  # 这里是不让他重复打印
-        # logger.add(sys.stderr,  # 这里是不让他重复打印
-        #            level="INFO"
-        #            )
+        logger.add(
+            sys.stderr,  # 这里是不让他重复打印
+            level="INFO"
+        )
         # 输出到文件，并按天分割和压缩
         logs_path = creat_time_os()
         # 日志文件名：由用例脚本的名称，结合日志保存路径，得到日志文件的绝对路径

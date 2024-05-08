@@ -9,7 +9,7 @@ import uvicorn
 
 app = create_app()
 
-
+# 中间件
 # @app.exception_handler(HTTPException)
 # async def invalid_token_exception_handler(request: Request, exc: HTTPException):
 #     return MyResponse(code=RET.REQ_ERR, err=exc)

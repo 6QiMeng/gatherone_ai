@@ -1,2 +1,20 @@
 # fastapi_template
-fastapi框架模板
+fastapi框架模板，启动项目，需要对应的(.env)文件。
+# apps
+- 用于接口分模块开发。
+# libs
+-   第三方官方接口，阿里云……
+# micro_server
+- 用于存放第三方服务，rpc和第三方http服务。
+    ## rpc
+    - 用于验证登录信息等。
+    ## http
+    - 用于该系统调用获取数据。
+# my_celery
+- 用于定时任务和异步任务。
+# settings
+- 项目的重要配置，如：日志，数据库连接，环境变量……
+# utils
+- 拓展工具，如：返回数据状态码含义。
+# main
+-   项目启动入口。

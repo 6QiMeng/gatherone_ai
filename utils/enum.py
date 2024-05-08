@@ -1,3 +1,54 @@
+from enum import Enum
+
+
+class BaseEnum(Enum):
+    """
+    apps/models/defing.py,新建类继承这个类。
+    """
+    def __init__(self, value, desc):
+        super().__init__()
+        self._value_ = value
+        self.desc = desc
+
+    @classmethod
+    def dicts(cls):
+        """
+        枚举字典
+        """
+        _enum_dict = {}
+        for member in cls:
+            _enum_dict[member.value] = member.desc
+        return _enum_dict
+
+    @classmethod
+    def values(cls):
+        """
+        类属性为元组，里第一个值列表
+        """
+        _enum_values = []
+        for member in cls:
+            _enum_values.append(member.value)
+        return _enum_values
+
+    @classmethod
+    def descs(cls):
+        """
+        类属性为元组，里第二个值列表
+        """
+        _enum_descs = []
+        for member in cls:
+            _enum_descs.append(member.desc)
+        return _enum_descs
+
+    def dict(self):
+        """
+        返回单个字典
+        """
+        _enum_dict = {}
+        _enum_dict[self._value_] = self.desc
+        return _enum_dict
+
+
 class EnumMem(object):
     def __init__(self, value, desc):
         self.value = value
@@ -131,4 +182,10 @@ if __name__ == "__main__":
     print(Test.NO == 2, Test.NO, Test.desc(2))
     print(Test.YS == '1', Test.YS, Test.desc("1"))
     print(Test.desc(100, "不存在,使用默认值"))
-    print(Test.desc(100))  # KeyError
+    # print(Test.desc(100))  # KeyError
+
+    class Test2(BaseEnum):
+        SUCCESS = (1, "成功")
+        FAIL = (2, "异常")
+    print(Test2.SUCCESS.value, Test2.SUCCESS.desc)
+    print(Test2.FAIL.value, Test2.FAIL.desc)

@@ -9,6 +9,9 @@ from starlette.responses import JSONResponse
 class MyResponse(JSONResponse):
     def __init__(self, code: int = RET.OK, msg: str = error_map[RET.OK], total: Optional[int] = None,
                  data: Union[List, Dict] = None, err=None, **kwargs):
+        """
+        统一接口返回数据格式，json格式。
+        """
         response_data = {
             'code': code,
             'msg': msg
