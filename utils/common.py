@@ -13,8 +13,6 @@ import pandas as pd
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
-from apps.approval.define import OperateResult
-from apps.customer.define import PayWay
 from settings.base import configs
 from settings.db import Base, Row
 import os
@@ -327,62 +325,17 @@ class ChunkReadSQL:
             return result, fields
 
     @staticmethod
-    async def process_data(sql_type, pool, start, end, where_str=""):
+    async def process_data(sql_type, pool, start, end, where_str="") -> pd.DataFrame:
+        '''
+        根据不同的操作（sql_type）选择对应的sql，得到DataFrame。
+        '''
         async with pool.acquire() as conn:
             sql_dict = {
                 "recharge": f"""
-                    SELECT
-                        a.work_order_id 工单编号,
-                        tu.real_name 申请人,
-                        tb_customers.name 客户简称,
-                        CASE 
-                        WHEN tb_customers.pay_way = {PayWay.PAY_ADVANCE} THEN '{PayWay.desc(PayWay.PAY_ADVANCE)}'
-                        ELSE '{PayWay.desc(PayWay.PAY_LATER)}' END 付款方式,
-                        tu_.real_name 销售负责人,
-                        tb_recharge_details.account_id 账户ID,
-                        tb_recharge_details.medium 投放媒介,
-                        tb_recharge_details.recharge_num 充值金额,
-                        CASE 
-                        WHEN tb_recharge_details.result = '{OperateResult.SUCCESS}' THEN '{OperateResult.desc(OperateResult.SUCCESS)}'
-                        WHEN tb_recharge_details.result = '{OperateResult.FAIL}' THEN '{OperateResult.desc(OperateResult.FAIL)}'
-                        ELSE '{OperateResult.desc(OperateResult.NULL_STR)}'END 充值结果,
-                        tb_recharge_details.recharge_time 充值时间,
-                        tb_recharge_details.remark 备注
-                    FROM
-                        (SELECT * FROM tb_recharges) a 
-                    LEFT JOIN tb_recharge_details ON a.id = tb_recharge_details.recharge_id
-                    LEFT JOIN tb_work_orders ON tb_work_orders.work_order_id = a.work_order_id
-                    LEFT JOIN tb_users tu ON tu.id = tb_work_orders.apply_user_id
-                    LEFT JOIN tb_customers ON tb_customers.id = tb_work_orders.customer_id
-                    LEFT JOIN tb_users tu_ ON tb_customers.sell_id = tu_.id 
-                    WHERE a.is_delete = FALSE {where_str}  LIMIT {start}, {end - start}
+                    充值sql语句。
                 """,
                 "reset": f"""
-                SELECT
-                       a.work_order_id 工单编号,
-                       tu.real_name 申请人,
-                       tb_customers.name 客户简称,
-                       CASE 
-                       WHEN tb_customers.pay_way = {PayWay.PAY_ADVANCE} THEN '{PayWay.desc(PayWay.PAY_ADVANCE)}'
-                       ELSE '{PayWay.desc(PayWay.PAY_LATER)}' END 付款方式,
-                       tu_.real_name 销售负责人,
-                       tb_reset_details.account_id 账户ID,
-                       tb_reset_details.medium 投放媒介,
-                       tb_reset_details.refund_charge 清退金额,
-                       CASE 
-                       WHEN tb_reset_details.result = '{OperateResult.SUCCESS}' THEN '{OperateResult.desc(OperateResult.SUCCESS)}'
-                       WHEN tb_reset_details.result = '{OperateResult.FAIL}' THEN '{OperateResult.desc(OperateResult.FAIL)}'
-                       ELSE '{OperateResult.desc(OperateResult.NULL_STR)}'END 清退结果,
-                       tb_reset_details.refund_time 清退时间,
-                       tb_reset_details.remark 备注
-                   FROM
-                        (SELECT * FROM tb_resets) a
-                   LEFT JOIN tb_reset_details ON a.id = tb_reset_details.reset_id
-                   LEFT JOIN tb_work_orders ON tb_work_orders.work_order_id = a.work_order_id
-                   LEFT JOIN tb_users tu ON tu.id = tb_work_orders.apply_user_id
-                   LEFT JOIN tb_customers ON tb_customers.id = tb_work_orders.customer_id
-                   LEFT JOIN tb_users tu_ ON tb_customers.sell_id = tu_.id
-                   WHERE a.is_delete = FALSE {where_str} LIMIT {start}, {end - start}
+                    清零sql语句。
                 """,
                 "meta_account": f"""
                 SELECT
