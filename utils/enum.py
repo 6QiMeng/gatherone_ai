@@ -167,25 +167,3 @@ class Enum(object, metaclass=EnumMetaClass):
 
     def __new__(cls, **kwargs):
         raise ValueError("cannot instantiate enum object")
-
-
-if __name__ == "__main__":
-    class Test(Enum):
-        YES = EnumMem(1, '是')
-        NO = EnumMem(2, '否')
-        YS = EnumMem('1', '是1')
-
-    print(*list(Test.values()))
-    print(Test.YES, Test.NO, Test.dict(), Test.values(), Test.dict().values())
-    print(Test.YES, Test.NO, Test.dict(), list(Test.values()), list(Test.dict().values()))
-    print(Test.YES == 1, Test.YES, Test.desc(1))
-    print(Test.NO == 2, Test.NO, Test.desc(2))
-    print(Test.YS == '1', Test.YS, Test.desc("1"))
-    print(Test.desc(100, "不存在,使用默认值"))
-    # print(Test.desc(100))  # KeyError
-
-    class Test2(BaseEnum):
-        SUCCESS = (1, "成功")
-        FAIL = (2, "异常")
-    print(Test2.SUCCESS.value, Test2.SUCCESS.desc)
-    print(Test2.FAIL.value, Test2.FAIL.desc)

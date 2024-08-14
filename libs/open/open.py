@@ -1,5 +1,4 @@
-# -*- coding: utf-8 -*-
-from libs.open import session
+from libs import session
 from utils.common import SingletonType
 
 

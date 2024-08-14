@@ -1,4 +1,3 @@
-# -*- coding:utf-8 -*-
 import sys
 import traceback
 from typing import Optional, Union, List, Dict
