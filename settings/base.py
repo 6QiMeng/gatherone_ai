@@ -107,6 +107,10 @@ class DevConfig(Settings):
     SPARKAI_API_SECRET: Optional[str] = Field(None, env="DEV_SPARKAI_API_SECRET")
     SPARKAI_DOMAIN: Optional[str] = Field(None, env="DEV_SPARKAI_DOMAIN")
 
+    # 百度服务
+    BAI_DU_API_KEY: Optional[str] = Field(None, env="DEV_BAI_DU_API_KEY")
+    BAI_DU_SECRET_KEY: Optional[str] = Field(None, env="DEV_BAI_DU_SECRET_KEY")
+
     # 认证服务
     AUTH_RPC_SERVER: Optional[str] = Field(None, env="DEV_AUTH_RPC_SERVER")
 
@@ -146,6 +150,10 @@ class ProdConfig(Settings):
     SPARKAI_API_KEY: Optional[str] = Field(None, env="PROD_SPARKAI_API_KEY")
     SPARKAI_API_SECRET: Optional[str] = Field(None, env="PROD_SPARKAI_API_SECRET")
     SPARKAI_DOMAIN: Optional[str] = Field(None, env="PROD_SPARKAI_DOMAIN")
+
+    # 百度服务
+    BAI_DU_API_KEY: Optional[str] = Field(None, env="PROD_BAI_DU_API_KEY")
+    BAI_DU_SECRET_KEY: Optional[str] = Field(None, env="PROD_BAI_DU_SECRET_KEY")
 
     # 认证服务
     SSO_RPC_SERVER: Optional[str] = Field(None, env="PROD_SSO_RPC_SERVER")
