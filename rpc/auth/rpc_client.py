@@ -1,8 +1,7 @@
 from __future__ import print_function
 import grpc
 import random
-from micro_server.rpc.auth import auth_pb2
-from micro_server.rpc.auth import auth_pb2_grpc
+from rpc.auth import auth_pb2, auth_pb2_grpc
 from settings.base import configs
 
 sso_rpc_servers = eval(configs.AUTH_RPC_SERVER)

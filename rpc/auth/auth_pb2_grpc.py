@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from micro_server.rpc.auth import auth_pb2 as auth__pb2
+from rpc.auth import auth_pb2 as auth__pb2
 
 
 class AuthServiceStub(object):

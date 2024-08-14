@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import sys
 import threading
 from math import ceil
@@ -36,8 +35,8 @@ SQLALCHEMY_DATABASE_URL = "mysql+pymysql://{}:{}@{}:{}/{}?charset=utf8mb4".forma
 # 接到数据库之中; 只有在第一次要求它对数据库执行任务时才会发生这种情况。
 # """
 engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_size=20, max_overflow=20, echo=False, pool_recycle=3600)
-
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+Base = declarative_base()
 
 
 def create_tb():
@@ -69,6 +68,7 @@ def create_tb():
     # for t in [*account_models, *approval_models, *common_models, *contract_models, *customer_models, *finance_models,
     #           *marketing_models, *message_models, *report_models, *system_models]:
     # t.metadata.create_all()
+    pass
 
 
 async def get_db():
@@ -77,13 +77,6 @@ async def get_db():
         yield db
     finally:
         db.close()
-
-
-"""
-创建基类
-"""
-Base = declarative_base(engine)
-
 
 class BaseModel(Base):
     __abstract__ = True
@@ -166,13 +159,11 @@ class BaseModel(Base):
 class RedisClient:
     _instance_lock = threading.Lock()
 
-    def __init__(self, host=configs.REDIS_HOST, port=configs.REDIS_PORT, username=configs.REDIS_USERNAME,
-                 password=configs.REDIS_PASSWORD, db=0):
+    def __init__(self, host=configs.REDIS_HOST, port=configs.REDIS_PORT,password=configs.REDIS_PASSWORD, db=0):
         try:
             self.pool = redis.ConnectionPool(
                 host=host,
                 port=port,
-                username=username,
                 password=password,
                 db=db,
                 max_connections=100

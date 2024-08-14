@@ -1,28 +1,36 @@
-# -*- coding: utf-8 -*-
-import io
 import os
-from contextlib import contextmanager
+import datetime
 from functools import lru_cache
-from io import StringIO
-from dotenv.main import DotEnv
-from pydantic import BaseSettings, Field
 from typing import Optional
+from pydantic.v1 import BaseSettings, Field
+
+from logging.handlers import WatchedFileHandler
 
 
-def my_get_stream(self):
-    """重写python-dotenv读取文件的方法，使用utf-8，支持读取包含中文的.env配置文件"""
-    if isinstance(self.dotenv_path, StringIO):
-        yield self.dotenv_path
-    elif os.path.isfile(self.dotenv_path):
-        with io.open(self.dotenv_path, encoding='utf-8') as stream:
-            yield stream
-    else:
-        if self.verbose:
-            print("File doesn't exist %s", self.dotenv_path)
-        yield StringIO('')
+class MyWatchHandler(WatchedFileHandler):
+    def __init__(self, file_path, mode='a', encoding=None, delay=False, errors=None):
+        filepath = self.filepath = './logs'
+        if not os.path.exists(filepath):
+            os.makedirs(filepath)
+        self.filename = f"{datetime.datetime.strftime(datetime.datetime.today(), '%Y-%m-%d')}.log"
+        file_name = os.path.join(self.filepath, self.filename)
+        super().__init__(file_name, mode=mode, encoding=encoding, delay=delay, errors=errors)
 
-
-DotEnv._get_stream = contextmanager(my_get_stream)
+    def emit(self, record):
+        """
+        每天分割文件，每天一个新的日志文件
+        """
+        current_file_name = f"{datetime.datetime.strftime(datetime.datetime.today(), '%Y-%m-%d')}.log"
+        if current_file_name != self.filename:
+            self.filename = current_file_name
+            self.baseFilename = os.path.abspath(os.path.join(self.filepath, self.filename))
+            if self.stream:
+                self.stream.flush()
+                self.stream.close()
+            self.stream = self._open()
+            self._statstream()
+        self.reopenIfNeeded()
+        super().emit(record)
 
 
 class Settings(BaseSettings):
@@ -35,53 +43,43 @@ class Settings(BaseSettings):
     SECRET_KEY: Optional[str] = Field(None, env="SECRET_KEY")
 
     # API版本号
-    API_VERSION_STR = "/api/v1"
+    API_VERSION_STR: Optional[str] = "/api/v1"
 
     # token过期时间8小时
-    ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 60 * 8
+    ACCESS_TOKEN_EXPIRE_MINUTES: Optional[int] = 60 * 60 * 8
 
     # 算法
-    ALGORITHM = "HS256"
+    ALGORITHM: Optional[str] = "HS256"
 
     # 产品名称
-    PRODUCTION_NAME = "gatherone_xxx"
+    PRODUCTION_NAME: Optional[str] = "gatherone_oa"
 
     # 允许访问的源
-    ALLOW_ORIGINS = [
+    ALLOW_ORIGINS: Optional[list] = [
         '*'
     ]
 
     # 阿里云
-    ACCESSKEY_ID: Optional[str] = Field(None, env="ACCESSKEY_ID")
-    ACCESSKEY_SECRET: Optional[str] = Field(None, env="ACCESSKEY_SECRET")
+    ACCESS_KEY_ID: Optional[str] = Field(None, env="ACCESS_KEY_ID")
+    ACCESS_KEY_SECRET: Optional[str] = Field(None, env="ACCESS_KEY_SECRET")
     BUCKET_NAME: Optional[str] = Field(None, env="BUCKET_NAME")
     END_POINT: Optional[str] = Field(None, env="END_POINT")
-    TEMPLATE_CODE: Optional[str] = Field(None, env="TEMPLATE_CODE")
-    AILOSS_URL: Optional[str] = Field(None, env="AILOSS_URL")
+    ALIOSS_URL: Optional[str] = Field(None, env="ALIOSS_URL")
     OSS_PREFIX: Optional[str] = Field(None, env="OSS_PREFIX")
-
-    # 微信
-    WX_BASE_URL: Optional[str] = Field(None, env="WX_BASE_URL")
-    APP_ID: Optional[str] = Field(None, env="APP_ID")
-    APP_SECRET: Optional[str] = Field(None, env="APP_SECRET")
-
-    TIANAPI_KEY: Optional[str] = Field(None, env='TIANAPI_KEY')
-
-    # REDIS存储
-    REDIS_STORAGE = {
-        'invitation_code': 1,  # 邀请码
-        'email_code': 2,  # 邮箱验证码
-        'login_info': 3,  # 登录信息
-        'sms_code': 4,  # 手机验证码
-    }
 
     # 加载.env文件的配置
     class Config:
         env_file = ".env"
+        env_file_encoding = 'utf-8'
         case_sensitive = True
 
 
 class DevConfig(Settings):
+    class Config:
+        env_file = ".env"
+        # env_file_encoding = 'utf-8'
+        case_sensitive = True
+
     """Development configurations."""
     MQ_HOST: Optional[str] = Field(None, env="DEV_MQ_HOST")
     MQ_PORT: Optional[str] = Field(None, env="DEV_MQ_PORT")
@@ -92,8 +90,8 @@ class DevConfig(Settings):
     # redis
     REDIS_HOST: Optional[str] = Field(None, env="DEV_REDIS_HOST")
     REDIS_PORT: Optional[int] = Field(None, env="DEV_REDIS_PORT")
-    REDIS_USERNAME: Optional[str] = Field(None, env="DEV_REDIS_USERNAME")
     REDIS_PASSWORD: Optional[str] = Field(None, env="DEV_REDIS_PASSWORD")
+    REDIS_CHANNEL: Optional[str] = Field(None, env="DEV_REDIS_CHANNEL")
 
     # Mysql
     MYSQL_SERVER: Optional[str] = Field(None, env="DEV_MYSQL_SERVER")
@@ -102,21 +100,12 @@ class DevConfig(Settings):
     MYSQL_DB_NAME: Optional[str] = Field(None, env="DEV_MYSQL_DB_NAME")
     MYSQL_PORT: Optional[int] = Field(None, env="DEV_MYSQL_PORT")
 
-    EMAIL: Optional[str] = Field(None, env="DEV_EMAIL")
-    EMAIL_PWD: Optional[str] = Field(None, env="DEV_EMAIL_PWD")
-
-    # 发送邮件
-    # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # 指定邮件后端
-    EMAIL_HOST: Optional[str] = Field(None, env="DEV_EMAIL_HOST")
-    EMAIL_PORT: Optional[str] = Field(None, env="DEV_EMAIL_PORT")
-    SENDER: Optional[str] = Field(None, env="DEV_SENDER")
-    PASSWORD: Optional[str] = Field(None, env="DEV_PASSWORD")
-    EMAIL_FROM_NAME: Optional[str] = Field(None, env="DEV_EMAIL_FROM_NAME")
-    EMAIL_USE_SSL = 997
-
-    # 回调相关
-    API_RPC_SERVER: Optional[str] = Field(None, env="DEV_API_RPC_SERVER")
-    API_KEY: Optional[str] = Field(None, env="DEV_API_KEY")
+    # 星火服务
+    SPARKAI_URL: Optional[str] = Field(None, env="DEV_SPARKAI_URL")
+    SPARKAI_APP_ID: Optional[str] = Field(None, env="DEV_SPARKAI_APP_ID")
+    SPARKAI_API_KEY: Optional[str] = Field(None, env="DEV_SPARKAI_API_KEY")
+    SPARKAI_API_SECRET: Optional[str] = Field(None, env="DEV_SPARKAI_API_SECRET")
+    SPARKAI_DOMAIN: Optional[str] = Field(None, env="DEV_SPARKAI_DOMAIN")
 
     # 认证服务
     AUTH_RPC_SERVER: Optional[str] = Field(None, env="DEV_AUTH_RPC_SERVER")
@@ -125,9 +114,13 @@ class DevConfig(Settings):
     BUG_DD_TOKEN: Optional[str] = Field(None, env="DEV_BUG_DD_TOKEN")
     BUG_DD_SECRET: Optional[str] = Field(None, env="DEV_BUG_DD_SECRET")
 
+    # AUTH登录api服务
+    AUTH_API_SERVER: Optional[str] = Field(None, env="DEV_AUTH_API_SERVER")
+
 
 class ProdConfig(Settings):
     """Production configurations."""
+
     MQ_HOST: Optional[str] = Field(None, env="PROD_MQ_HOST")
     MQ_PORT: Optional[str] = Field(None, env="PROD_MQ_PORT")
     MQ_USERNAME: Optional[str] = Field(None, env="PROD_MQ_USERNAME")
@@ -137,8 +130,8 @@ class ProdConfig(Settings):
     # redis
     REDIS_HOST: Optional[str] = Field(None, env="PROD_REDIS_HOST")
     REDIS_PORT: Optional[int] = Field(None, env="PROD_REDIS_PORT")
-    REDIS_USERNAME: Optional[str] = Field(None, env="PROD_REDIS_USERNAME")
     REDIS_PASSWORD: Optional[str] = Field(None, env="PROD_REDIS_PASSWORD")
+    REDIS_CHANNEL: Optional[str] = Field(None, env="PROD_REDIS_CHANNEL")
 
     # Mysql
     MYSQL_SERVER: Optional[str] = Field(None, env="PROD_MYSQL_SERVER")
@@ -147,12 +140,12 @@ class ProdConfig(Settings):
     MYSQL_DB_NAME: Optional[str] = Field(None, env="PROD_MYSQL_DB_NAME")
     MYSQL_PORT: Optional[int] = Field(None, env="PROD_MYSQL_PORT")
 
-    EMAIL: Optional[str] = Field(None, env="PRO_EMAIL")
-    EMAIL_PWD: Optional[str] = Field(None, env="PRO_EMAIL_PWD")
-
-    # 回调相关
-    API_RPC_SERVER: Optional[str] = Field(None, env="PROD_API_RPC_SERVER")
-    API_KEY: Optional[str] = Field(None, env="PROD_API_KEY")
+    # 星火服务
+    SPARKAI_URL: Optional[str] = Field(None, env="PROD_SPARKAI_URL")
+    SPARKAI_APP_ID: Optional[str] = Field(None, env="PROD_SPARKAI_APP_ID")
+    SPARKAI_API_KEY: Optional[str] = Field(None, env="PROD_SPARKAI_API_KEY")
+    SPARKAI_API_SECRET: Optional[str] = Field(None, env="PROD_SPARKAI_API_SECRET")
+    SPARKAI_DOMAIN: Optional[str] = Field(None, env="PROD_SPARKAI_DOMAIN")
 
     # 认证服务
     SSO_RPC_SERVER: Optional[str] = Field(None, env="PROD_SSO_RPC_SERVER")
@@ -160,6 +153,9 @@ class ProdConfig(Settings):
     # 钉钉消息提醒
     BUG_DD_TOKEN: Optional[str] = Field(None, env="PROD_BUG_DD_TOKEN")
     BUG_DD_SECRET: Optional[str] = Field(None, env="PROD_BUG_DD_SECRET")
+
+    # AUTH登录api服务
+    AUTH_API_SERVER: Optional[str] = Field(None, env="PROD_AUTH_API_SERVER")
 
 
 class FactoryConfig:
@@ -169,7 +165,6 @@ class FactoryConfig:
         self.env_state = env_state
 
     def __call__(self):
-
         if self.env_state == "development":
             return DevConfig()
 
