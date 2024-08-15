@@ -74,6 +74,8 @@ error_map = {
 
 
 class CodeType:
+    # 通用code type
     FORGET_PWD = 'forget_pwd'
-    BIND_WX = 'bind_wx'
     REGISTER = 'register'
+    UPDATE_MOBILE = 'update_mobile'
+    LOGIN = 'login'
