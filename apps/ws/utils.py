@@ -46,7 +46,7 @@ class WebsocketServer(metaclass=SingletonType):
 
     async def to_do(self, websocket: WebSocket, user_id: int):
         while True:
-            message = await websocket.receive_json()
+            message = await websocket.receive_text()
             try:
                 await self.__send_personal_message(message, user_id)
             except Exception as e:

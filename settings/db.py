@@ -36,39 +36,16 @@ SQLALCHEMY_DATABASE_URL = "mysql+pymysql://{}:{}@{}:{}/{}?charset=utf8mb4".forma
 # """
 engine = create_engine(SQLALCHEMY_DATABASE_URL, pool_size=20, max_overflow=20, echo=False, pool_recycle=3600)
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
-Base = declarative_base()
+Base = declarative_base(engine)
 
 
 def create_tb():
     """
     在sqlalchemy中创建元数据用来存储应用中所有数据表。通常一个应用中只有一个元数据。
     """
-    # 删除所有表
-    # Base.metadata.drop_all()
-    # 创建所有表
-    # Base.metadata.create_all()
-    # base = automap_base(metadata=Base.metadata)
-    # base.prepare()
-    # all_models = base.classes
-    # for model_name, model_class in all_models.items():
-    #     print(model_name, model_class.__name__)
-
-    # from apps.account.models import custom_models as account_models
-    # from apps.approval.models import custom_models as approval_models
-    # from apps.api.models import custom_models as common_models
-    # from apps.contract.models import custom_models as contract_models
-    # from apps.customer.models import custom_models as customer_models
-    # from apps.finance.models import custom_models as finance_models
-    # from apps.marketing.models import custom_models as marketing_models
-    # from apps.message.models import custom_models as message_models
-    # from apps.report.models import custom_models as report_models
-    # from apps.system.models import custom_models as system_models
-    # from sqlalchemy_scheduler_models import custom_models as schedule_models
-
-    # for t in [*account_models, *approval_models, *common_models, *contract_models, *customer_models, *finance_models,
-    #           *marketing_models, *message_models, *report_models, *system_models]:
-    # t.metadata.create_all()
-    pass
+    from apps.voice.model import VoiceModel
+    tables = [VoiceModel.__table__]
+    Base.metadata.create_all(tables=tables)
 
 
 async def get_db():

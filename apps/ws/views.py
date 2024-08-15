@@ -6,7 +6,7 @@ from apps.ws.utils import WebsocketServer
 WSRouter = APIRouter(tags=['ws'])
 
 
-@WSRouter.websocket('/ws/{user_id}')
+@WSRouter.websocket('/{user_id}')
 async def websocket_endpoint(user_id: int, websocket: WebSocket):
     """
     备用方案，广播,所有人都能接到消息

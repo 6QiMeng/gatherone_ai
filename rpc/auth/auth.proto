@@ -19,9 +19,8 @@ message UserData {
   string department_name = 10;  //部门名称
   string leader_name = 11;  //直属上级
   string company_name = 12;  //公司名称
-  string session_id = 13; // session_id
-  string system = 14; // 系统权限
-  string cn_identification = 15; // 认证类型
+  string system = 13; // 系统权限
+  bool is_delete = 14; //删除状态
 }
 
 message VerifyTokenResponse {
@@ -30,6 +29,6 @@ message VerifyTokenResponse {
   UserData data = 3;
 }
 
-service AuthService {
+service Auth {
   rpc VerifyToken(VerifyTokenRequest) returns (VerifyTokenResponse);  //验证token
 }

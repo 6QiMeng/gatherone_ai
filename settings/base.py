@@ -118,8 +118,9 @@ class DevConfig(Settings):
     BUG_DD_TOKEN: Optional[str] = Field(None, env="DEV_BUG_DD_TOKEN")
     BUG_DD_SECRET: Optional[str] = Field(None, env="DEV_BUG_DD_SECRET")
 
-    # AUTH登录api服务
-    AUTH_API_SERVER: Optional[str] = Field(None, env="DEV_AUTH_API_SERVER")
+    # Consul
+    CONSUL_HOST: Optional[str] = Field(None, env="DEV_CONSUL_HOST")
+    CONSUL_PORT: Optional[str] = Field(None, env="DEV_CONSUL_PORT")
 
 
 class ProdConfig(Settings):
@@ -162,8 +163,9 @@ class ProdConfig(Settings):
     BUG_DD_TOKEN: Optional[str] = Field(None, env="PROD_BUG_DD_TOKEN")
     BUG_DD_SECRET: Optional[str] = Field(None, env="PROD_BUG_DD_SECRET")
 
-    # AUTH登录api服务
-    AUTH_API_SERVER: Optional[str] = Field(None, env="PROD_AUTH_API_SERVER")
+    #  Consul
+    CONSUL_HOST: Optional[str] = Field(None, env="PROD_CONSUL_HOST")
+    CONSUL_PORT: Optional[str] = Field(None, env="PROD_CONSUL_PORT")
 
 
 class FactoryConfig:

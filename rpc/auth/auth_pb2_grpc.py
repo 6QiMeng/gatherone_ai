@@ -5,7 +5,7 @@ import grpc
 from rpc.auth import auth_pb2 as auth__pb2
 
 
-class AuthServiceStub(object):
+class AuthStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -15,13 +15,13 @@ class AuthServiceStub(object):
             channel: A grpc.Channel.
         """
         self.VerifyToken = channel.unary_unary(
-                '/auth.AuthService/VerifyToken',
+                '/auth.Auth/VerifyToken',
                 request_serializer=auth__pb2.VerifyTokenRequest.SerializeToString,
                 response_deserializer=auth__pb2.VerifyTokenResponse.FromString,
                 )
 
 
-class AuthServiceServicer(object):
+class AuthServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def VerifyToken(self, request, context):
@@ -32,7 +32,7 @@ class AuthServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
 
-def add_AuthServiceServicer_to_server(servicer, server):
+def add_AuthServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'VerifyToken': grpc.unary_unary_rpc_method_handler(
                     servicer.VerifyToken,
@@ -41,12 +41,12 @@ def add_AuthServiceServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'auth.AuthService', rpc_method_handlers)
+            'auth.Auth', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class AuthService(object):
+class Auth(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -60,7 +60,7 @@ class AuthService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/auth.AuthService/VerifyToken',
+        return grpc.experimental.unary_unary(request, target, '/auth.Auth/VerifyToken',
             auth__pb2.VerifyTokenRequest.SerializeToString,
             auth__pb2.VerifyTokenResponse.FromString,
             options, channel_credentials,

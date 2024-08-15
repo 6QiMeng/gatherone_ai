@@ -6,9 +6,8 @@ grpcio-tools==1.56.2
 requests==2.32.3
 redis==5.0.7
 PyMySQL==1.1.1
-SQLAlchemy==2.0.31
+SQLAlchemy==1.4.49
 munch==4.0.0
-async_timeout==4.0.3
-certifi==2024.7.4
-annotated_types==0.7.0
-anyio==4.4.0
+typing_inspect==0.9.0
+openai==1.37.1
+python-consul==1.1.0
