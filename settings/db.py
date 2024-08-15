@@ -55,6 +55,7 @@ async def get_db():
     finally:
         db.close()
 
+
 class BaseModel(Base):
     __abstract__ = True
 
@@ -136,7 +137,7 @@ class BaseModel(Base):
 class RedisClient:
     _instance_lock = threading.Lock()
 
-    def __init__(self, host=configs.REDIS_HOST, port=configs.REDIS_PORT,password=configs.REDIS_PASSWORD, db=0):
+    def __init__(self, host=configs.REDIS_HOST, port=configs.REDIS_PORT, password=configs.REDIS_PASSWORD, db=0):
         try:
             self.pool = redis.ConnectionPool(
                 host=host,
@@ -165,6 +166,40 @@ class RedisClient:
         except Exception as e:
             log_error(f'redis连接异常:{e.__str__()}')
             return None
+
+
+# 获取redis链接
+def get_redis_connection(conn_name: str):
+    db = configs.REDIS_STORAGE.get(conn_name)
+    redis_connection = RedisClient(db=db).get_redis_client()
+    return redis_connection
+
+
+class RedisManage:
+    # 存储短信验证码
+    @staticmethod
+    def storage_sms_code(code_type, mobile, sms_code):
+        redis_coon = get_redis_connection(conn_name='code')
+        _code = redis_coon.get(f'{code_type}_{mobile}')
+        if _code:
+            return False, '验证码发送频繁'
+        redis_coon.setex(f'{code_type}_{mobile}', 60 * 5, sms_code)
+        redis_coon.close()
+        return True, '验证码发送成功'
+
+    # 校验短信验证码
+    @staticmethod
+    def verify_sms_code(code_type, mobile, sms_code, delete=False):
+        # 校验验证码 验证通过删除验证码
+        redis_coon = get_redis_connection(conn_name='code')
+        _sms_code = redis_coon.get(f'{code_type}_{mobile}')
+        if sms_code.encode('utf-8') != _sms_code:
+            redis_coon.close()
+            return False
+        if delete:
+            redis_coon.delete(f'{code_type}_{mobile}')
+        redis_coon.close()
+        return True
 
 
 # 获取单个对象

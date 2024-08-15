@@ -73,6 +73,12 @@ class Settings(BaseSettings):
         env_file_encoding = 'utf-8'
         case_sensitive = True
 
+    # REDIS存储
+    REDIS_STORAGE = {
+        'code': 1  # 所有验证码都存储在1号库
+    }
+
+
 
 class DevConfig(Settings):
     class Config:
@@ -122,6 +128,9 @@ class DevConfig(Settings):
     CONSUL_HOST: Optional[str] = Field(None, env="DEV_CONSUL_HOST")
     CONSUL_PORT: Optional[str] = Field(None, env="DEV_CONSUL_PORT")
 
+    # 短信模版id
+    SMS_TEMPLATE_ID: Optional[str] = Field(None, env="DEV_SMS_TEMPLATE_ID")
+
 
 class ProdConfig(Settings):
     """Production configurations."""
@@ -166,6 +175,9 @@ class ProdConfig(Settings):
     #  Consul
     CONSUL_HOST: Optional[str] = Field(None, env="PROD_CONSUL_HOST")
     CONSUL_PORT: Optional[str] = Field(None, env="PROD_CONSUL_PORT")
+
+    # 短信模版id
+    SMS_TEMPLATE_ID: Optional[str] = Field(None, env="PROD_SMS_TEMPLATE_ID")
 
 
 class FactoryConfig:

@@ -8,6 +8,14 @@ redis==5.0.7
 PyMySQL==1.1.1
 SQLAlchemy==1.4.49
 munch==4.0.0
-typing_inspect==0.9.0
-openai==1.37.1
+async_timeout==4.0.3
+certifi==2024.7.4
+annotated_types==0.7.0
+anyio==4.4.0
+typing-inspect==0.9.0
+PyJWT==2.8.0
+oss2==2.18.4
+Pillow===10.4.0
+tenacity==8.5.0
+openai==1.40.6
 python-consul==1.1.0

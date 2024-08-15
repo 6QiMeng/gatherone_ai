@@ -1,11 +1,13 @@
-from google.protobuf.json_format import MessageToDict
-from munch import DefaultMunch
 from starlette.requests import Request
 from starlette.middleware.cors import CORSMiddleware
-from rpc.auth.rpc_client import verifyToken
 from fastapi.middleware.wsgi import WSGIMiddleware
 from utils.constant import RET
 from utils.resp import MyResponse
+from settings.base import configs
+from apps.system.utils import JwtTokenUtil
+from settings.db import SessionLocal
+from apps.system.models import UserModel
+from munch import DefaultMunch
 
 
 def middleware_init(app):
@@ -23,20 +25,21 @@ def middleware_init(app):
         """
         验证token
         """
-        if request.url.path not in ['/docs', '/openapi.json']:
+        if request.url.path not in [
+            '/docs',
+            '/openapi.json',
+            f"{configs.API_VERSION_STR}/system/sms_codes",  # 发送验证码
+        ]:
             Authorization = request.headers.get('Authorization')
             if not Authorization or not Authorization.startswith('Bearer '):
                 return MyResponse(code=RET.SESSION_ERR, msg='未提供有效的身份令牌')
             token = Authorization.split(' ')[1]
-            verify_res = verifyToken(token=token)
-            if verify_res.code != 0:
-                return MyResponse(code=verify_res.code, msg=verify_res.msg)
-            user_info = MessageToDict(
-                verify_res.data,
-                including_default_value_fields=True,
-                preserving_proto_field_name=True
-            )
-            setattr(request.state, 'user', DefaultMunch.fromDict(user_info))
+            payload = JwtTokenUtil.verify_jwt(token)
+            if not payload:
+                return RET.SESSION_ERR, '身份令牌已过期'
+            with SessionLocal() as db:
+                user = db.query(UserModel).filter(UserModel.id == payload.get("user_id")).first()
+            setattr(request.state, 'user', DefaultMunch.fromDict(user.to_dict()))
         response = await call_next(request)
         return response
 
