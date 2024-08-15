@@ -4,7 +4,7 @@ from consul import Consul, Check
 from settings.base import configs
 
 
-class CustomerConsul:
+class AIConsul:
     def __init__(self, consul_host=configs.CONSUL_HOST, consul_port=configs.CONSUL_PORT):
         self.consul_host = consul_host
         self.consul_port = consul_port
@@ -25,8 +25,12 @@ class CustomerConsul:
     def register_service(self, service_id, service_name, service_host, service_port):
         if self.consul_client is None:
             raise ValueError("Consul client has not been initialized.")
-        check_http = Check.http('http://' + service_host + ':' + str(service_port) + '/healthcheck', interval='10s',
-                                deregister='15s')
+        check_http = Check.http(
+            url='http://' + service_host + ':' + str(service_port) + '/healthcheck',
+            interval='10s',
+            timeout='5s',
+            deregister='15s'
+        )
         self.consul_client.agent.service.register(
             name=service_name,
             service_id=service_id,
@@ -43,6 +47,6 @@ class CustomerConsul:
 
 
 if __name__ == '__main__':
-    my_consul = CustomerConsul()
-    consul_server = my_consul.discover_service('ucenter')
-    print(consul_server)
+    my_consul = AIConsul()
+    server_host, server_port = my_consul.discover_service('ucenter')
+    print(server_host, server_port)
